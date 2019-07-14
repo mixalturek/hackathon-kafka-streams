@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: "idea"
+
+subprojects {
+    apply plugin: "java"
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    ext {
+        mainClass = "com.github.mixalturek.streams.StreamsServer"
+
+        apiGuardianVersion = "1.0.0"
+        junitJupiterVersion = "5.4.0"
+        scalatestVersion = "3.0.5"
+        pegdownVersion = "1.6.0"
+    }
+
+    dependencies {
+        testCompile "org.apiguardian:apiguardian-api:$apiGuardianVersion"
+        testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+        testCompile "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+        testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    }
+}
