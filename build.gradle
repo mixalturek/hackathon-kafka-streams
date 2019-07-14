@@ -23,6 +23,9 @@ subprojects {
     ext {
         mainClass = "com.github.mixalturek.streams.StreamsServer"
 
+        logbackVersion = '1.2.3'
+        kafkaStreamsVersion = "2.3.0"
+
         apiGuardianVersion = "1.0.0"
         junitJupiterVersion = "5.4.0"
         scalatestVersion = "3.0.5"
