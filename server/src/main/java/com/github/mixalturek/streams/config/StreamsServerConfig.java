@@ -1,25 +1,42 @@
 package com.github.mixalturek.streams.config;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.StreamsConfig;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
+import java.time.Duration;
 
+/**
+ * Configuration of the application.
+ */
+@SuppressWarnings("unused")
 public class StreamsServerConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamsServerConfig.class);
+
     public static StreamsServerConfig load() {
-        // TODO: Read the configuration from a file.
-        return new StreamsServerConfig();
+        Config config = ConfigFactory.load().getConfig("streamsServer");
+        LOGGER.info("Dump of raw configuration:\n{}", ConfigUtils.formatKeyValues(config));
+        return ConfigBeanFactory.create(config, StreamsServerConfig.class);
     }
 
-    private Properties getKafkaStreams() {
-        Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "homework-v0.2");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
-        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 500);
-        return props;
+    private Duration shutdownTimeout;
+    private Config kafkaStreams;
+
+    public Duration getShutdownTimeout() {
+        return shutdownTimeout;
+    }
+
+    public void setShutdownTimeout(Duration shutdownTimeout) {
+        this.shutdownTimeout = shutdownTimeout;
+    }
+
+    public Config getKafkaStreams() {
+        return kafkaStreams;
+    }
+
+    public void setKafkaStreams(Config kafkaStreams) {
+        this.kafkaStreams = kafkaStreams;
     }
 }

@@ -8,5 +8,6 @@ jar {
 
 dependencies {
     compile "ch.qos.logback:logback-classic:$logbackVersion"
+    compile "com.typesafe:config:$typesafeConfigVersion"
     compile "org.apache.kafka:kafka-streams:$kafkaStreamsVersion"
 }

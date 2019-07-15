@@ -22,7 +22,7 @@ public class StreamsServer {
         StreamsServerConfig config = StreamsServerConfig.load();
 
         try {
-            CountDownLatch shutdownLatch = registerShutdownHook();
+            CountDownLatch shutdownLatch = registerShutdownHook(config.getShutdownTimeout());
             logLifeCycleEvent("APPLICATION STARTED");
             shutdownLatch.await();
             logLifeCycleEvent("STOPPING APPLICATION");
@@ -41,13 +41,13 @@ public class StreamsServer {
         LOGGER.info("====================== {} ======================", message);
     }
 
-    private static CountDownLatch registerShutdownHook() {
+    private static CountDownLatch registerShutdownHook(Duration shutdownTimeout) {
         CountDownLatch shutdownLatch = new CountDownLatch(1);
-        Runtime.getRuntime().addShutdownHook(shutdownHook(shutdownLatch, Thread.currentThread(), Duration.ofSeconds(30)));
+        Runtime.getRuntime().addShutdownHook(shutdownHook(shutdownLatch, Thread.currentThread(), shutdownTimeout));
         return shutdownLatch;
     }
 
-    private static Thread shutdownHook(CountDownLatch shutdownLatch, Thread mainThread, Duration timeout) {
+    private static Thread shutdownHook(CountDownLatch shutdownLatch, Thread mainThread, Duration shutdownTimeout) {
         return new Thread("ShutdownHook") {
             @Override
             public void run() {
@@ -57,7 +57,7 @@ public class StreamsServer {
                 // Immediately after all shutdown hooks finish, Java process would stop. There is no waiting for finish
                 // of any running non-daemon thread so proper shutdown would not happen.
                 try {
-                    mainThread.join(timeout.toMillis());
+                    mainThread.join(shutdownTimeout.toMillis());
                 } catch (InterruptedException e) {
                     LOGGER.error("Waiting for exit of main thread failed", e);
                 }
