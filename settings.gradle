@@ -1,2 +1,2 @@
-rootProject.name = 'kafka-streams-task'
+rootProject.name = 'hackathon-kafka-streams'
 include ':server'

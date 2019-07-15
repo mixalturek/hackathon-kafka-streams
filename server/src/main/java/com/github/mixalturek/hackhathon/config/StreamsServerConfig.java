@@ -1,4 +1,4 @@
-package com.github.mixalturek.streams.config;
+package com.github.mixalturek.hackhathon.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -23,6 +23,7 @@ public class StreamsServerConfig {
 
     private Duration shutdownTimeout;
     private Config kafkaStreams;
+    private String inputTopic;
 
     public Duration getShutdownTimeout() {
         return shutdownTimeout;
@@ -38,5 +39,13 @@ public class StreamsServerConfig {
 
     public void setKafkaStreams(Config kafkaStreams) {
         this.kafkaStreams = kafkaStreams;
+    }
+
+    public String getInputTopic() {
+        return inputTopic;
+    }
+
+    public void setInputTopic(String inputTopic) {
+        this.inputTopic = inputTopic;
     }
 }

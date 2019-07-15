@@ -1,7 +1,10 @@
-package com.github.mixalturek.streams;
+package com.github.mixalturek.hackhathon;
 
 import ch.qos.logback.classic.LoggerContext;
-import com.github.mixalturek.streams.config.StreamsServerConfig;
+import com.github.mixalturek.hackhathon.config.ConfigUtils;
+import com.github.mixalturek.hackhathon.config.StreamsServerConfig;
+import com.github.mixalturek.hackhathon.streams.HackathonStreams;
+import org.apache.kafka.streams.KafkaStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,17 +15,17 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Server that is running `Kafka Streams` stream processing.
  */
-public class StreamsServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StreamsServer.class);
+public class HackathonServer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HackathonServer.class);
 
     public static void main(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler((thread, e) -> LOGGER.error("Uncaught exception: {}", thread, e));
         logLifeCycleEvent("STARTING APPLICATION");
 
         StreamsServerConfig config = StreamsServerConfig.load();
+        CountDownLatch shutdownLatch = registerShutdownHook(config.getShutdownTimeout());
 
-        try {
-            CountDownLatch shutdownLatch = registerShutdownHook(config.getShutdownTimeout());
+        try (KafkaStreams ignored = startStreamProcessing(config)) {
             logLifeCycleEvent("APPLICATION STARTED");
             shutdownLatch.await();
             logLifeCycleEvent("STOPPING APPLICATION");
@@ -59,11 +62,17 @@ public class StreamsServer {
                 try {
                     mainThread.join(shutdownTimeout.toMillis());
                 } catch (InterruptedException e) {
-                    LOGGER.error("Waiting for exit of main thread failed", e);
+                    LOGGER.error("Waiting for exit of main thread interrupted", e);
                 }
 
                 logLifeCycleEvent("SHUTDOWN HOOK FINISHED");
             }
         };
+    }
+
+    private static KafkaStreams startStreamProcessing(StreamsServerConfig config) {
+        LOGGER.info("Starting stream processing");
+        return new HackathonStreams()
+                .startKafkaStreams(ConfigUtils.toProperties(config.getKafkaStreams()), config.getInputTopic());
     }
 }

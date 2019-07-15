@@ -1,4 +1,4 @@
-package com.github.mixalturek.streams.config;
+package com.github.mixalturek.hackhathon.config;
 
 import com.typesafe.config.Config;
 

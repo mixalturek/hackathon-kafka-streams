@@ -21,7 +21,7 @@ subprojects {
     }
 
     ext {
-        mainClass = "com.github.mixalturek.streams.StreamsServer"
+        mainClass = "com.github.mixalturek.hackhathon.HackathonServer"
 
         logbackVersion = "1.2.3"
         typesafeConfigVersion = "1.3.4"
