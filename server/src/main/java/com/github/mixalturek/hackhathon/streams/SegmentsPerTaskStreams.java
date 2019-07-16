@@ -42,7 +42,16 @@ public class SegmentsPerTaskStreams {
                 .map((k, v) -> mapModification(v))
                 .peek((k, v) -> LOGGER.trace("State of segment: {}, {}", k, v))
                 .groupByKey(Grouped.with(new SegmentIdSerde(), Serdes.Integer()))
-                .reduce((a, b) -> b) // The latest update will survive
+
+                // TODO: "With proper implementation, re-sending the sample data into the source topic should be an
+                // idempotent operation with regards to the expected result."
+                //
+                // Query current state of a segment in KTable and transform "1 - completed" and "0 - not completed"
+                // to "1 - change from not completed to completed", "0 - no change", "-1 - change from completed to
+                // not completed". The rest will then remain untouched.
+
+                // The latest update will survive
+                .reduce((a, b) -> b)
                 .toStream()
                 .peek((k, v) -> LOGGER.trace("Latest state of segment: {}, {}", k, v))
                 .map(this::extractTaskId)
