@@ -2,8 +2,8 @@ package com.github.mixalturek.hackhathon;
 
 import ch.qos.logback.classic.LoggerContext;
 import com.github.mixalturek.hackhathon.config.ConfigUtils;
-import com.github.mixalturek.hackhathon.config.StreamsServerConfig;
-import com.github.mixalturek.hackhathon.streams.HackathonStreams;
+import com.github.mixalturek.hackhathon.config.HackathonServerConfig;
+import com.github.mixalturek.hackhathon.streams.SegmentsPerTaskStreams;
 import org.apache.kafka.streams.KafkaStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class HackathonServer {
         Thread.setDefaultUncaughtExceptionHandler((thread, e) -> LOGGER.error("Uncaught exception: {}", thread, e));
         logLifeCycleEvent("STARTING APPLICATION");
 
-        StreamsServerConfig config = StreamsServerConfig.load();
+        HackathonServerConfig config = HackathonServerConfig.load();
         CountDownLatch shutdownLatch = registerShutdownHook(config.getShutdownTimeout());
 
         try (KafkaStreams ignored = startStreamProcessing(config)) {
@@ -70,9 +70,11 @@ public class HackathonServer {
         };
     }
 
-    private static KafkaStreams startStreamProcessing(StreamsServerConfig config) {
+    private static KafkaStreams startStreamProcessing(HackathonServerConfig config) {
         LOGGER.info("Starting stream processing");
-        return new HackathonStreams()
-                .startKafkaStreams(ConfigUtils.toProperties(config.getKafkaStreams()), config.getInputTopic());
+        return new SegmentsPerTaskStreams().startStreamProcessing(
+                ConfigUtils.toProperties(config.getKafkaStreams()),
+                config.getInputTopic(),
+                config.getOutputTopic());
     }
 }
